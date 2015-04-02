@@ -11,6 +11,10 @@ public class Board {
     // construct a board from an N-by-N array of blocks
     // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
+        if (blocks == null) {
+            throw new NullPointerException();
+        }
+
         this.n = blocks.length;
         this.blocks = blocks;
     }
@@ -97,16 +101,10 @@ public class Board {
     // string representation of this board (in the output format specified below)
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        int value;
+        sb.append(n + "\n");
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                value = blocks[i][j];
-                if (value == 0) {
-                    sb.append(" ");
-                } else {
-                    sb.append(value);
-                }
-                sb.append(" ");
+                sb.append(String.format("%2d ", blocks[i][j]));
             }
             sb.append("\n");
         }
