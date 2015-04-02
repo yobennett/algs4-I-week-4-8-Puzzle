@@ -63,7 +63,20 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-        return false;
+
+        // check last block
+        if (blocks[n-1][n-1] != 0) {
+            return false;
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (!isInPlace(i,j)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     // a board that is obtained by exchanging two adjacent blocks in the same row
@@ -97,6 +110,11 @@ public class Board {
             }
             sb.append("\n");
         }
+
+        sb.append("hamming: " + hamming() + "\n");
+        sb.append("manhattan: " + manhattan() + "\n");
+        sb.append("goal?: " + isGoal() + "\n");
+
         return sb.toString();
     }
 
@@ -106,8 +124,6 @@ public class Board {
         int[][] input = { {8, 1, 3}, {4, 0, 2}, {7, 6, 5} };
         Board board = new Board(input);
         System.out.println(board);
-        System.out.println("hamming: " + board.hamming());
-        System.out.println("manhattan: " + board.manhattan());
     }
 
 }
