@@ -22,12 +22,43 @@ public class Board {
 
     // number of blocks out of place
     public int hamming() {
-        return 0;
+        int result = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (!isBlank(i,j) && !isInPlace(i,j)) {
+                    result += 1;
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean isBlank(int i, int j) {
+        return blocks[i][j] == 0;
+    }
+
+    private boolean isInPlace(int i, int j) {
+        return blocks[i][j] == (i*n) + j + 1;
     }
 
     // sum of Manhattan distances between blocks and goal
     public int manhattan() {
-        return 0;
+        int result = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (!isBlank(i,j) && !isInPlace(i,j)) {
+                    result += distanceFromPlace(i,j);
+                }
+            }
+        }
+        return result;
+    }
+
+    private int distanceFromPlace(int i, int j) {
+        int value = blocks[i][j];
+        int targetRow = value / (n+1);
+        int targetColumn = (value-1) % n;
+        return Math.abs(targetRow - i) + Math.abs(targetColumn - j);
     }
 
     // is this board the goal board?
@@ -73,8 +104,10 @@ public class Board {
         System.out.println("Starting....");
 
         int[][] input = { {8, 1, 3}, {4, 0, 2}, {7, 6, 5} };
-
-        System.out.println(new Board(input));
+        Board board = new Board(input);
+        System.out.println(board);
+        System.out.println("hamming: " + board.hamming());
+        System.out.println("manhattan: " + board.manhattan());
     }
 
 }
