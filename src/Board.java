@@ -90,7 +90,27 @@ public class Board {
 
     // a board that is obtained by exchanging two adjacent blocks in the same row
     public Board twin() {
-        return this;
+        int[][] twinBlocks = new int[n][n];
+
+        for (int i = 0; i < n; i++) {
+            if (i == 0) {
+                int tmp = blocks[i][0];
+                // TODO System.arraycopy from 2..n-1
+                for (int j = 0; j < n; j++) {
+                   if (j == 0) {
+                       twinBlocks[i][j] = blocks[i][1];
+                   } else if (j == 1) {
+                       twinBlocks[i][j] = tmp;
+                   } else {
+                       twinBlocks[i][j] = blocks[i][j];
+                   }
+                }
+            } else {
+                System.arraycopy(blocks[i], 0, twinBlocks[i], 0, n);
+            }
+        }
+
+        return new Board(twinBlocks);
     }
 
     // does this board equal that?
@@ -149,6 +169,8 @@ public class Board {
         int[][] input2 = { {5, 1, 3}, {4, 0, 2}, {7, 6, 8} };
         Board board2 = new Board(input2);
         System.out.println("Equals board2? " + board.equals(board2));
+
+        System.out.println("\nTwin:\n" + board.twin());
     }
 
 }
