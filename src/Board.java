@@ -1,5 +1,6 @@
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by bennett on 4/1/15.
@@ -90,27 +91,7 @@ public class Board {
 
     // a board that is obtained by exchanging two adjacent blocks in the same row
     public Board twin() {
-        int[][] twinBlocks = new int[n][n];
-
-        for (int i = 0; i < n; i++) {
-            if (i == 0) {
-                int tmp = blocks[i][0];
-                // TODO System.arraycopy from 2..n-1
-                for (int j = 0; j < n; j++) {
-                   if (j == 0) {
-                       twinBlocks[i][j] = blocks[i][1];
-                   } else if (j == 1) {
-                       twinBlocks[i][j] = tmp;
-                   } else {
-                       twinBlocks[i][j] = blocks[i][j];
-                   }
-                }
-            } else {
-                System.arraycopy(blocks[i], 0, twinBlocks[i], 0, n);
-            }
-        }
-
-        return new Board(twinBlocks);
+        return new Board(swap(0, 0, 0, 1));
     }
 
     // does this board equal that?
@@ -129,13 +110,68 @@ public class Board {
     @Override
     public int hashCode() {
         int hash = 17;
-        hash = 31*hash + blocks.hashCode();
+        hash = 31*hash + Arrays.hashCode(blocks);
         return hash;
     }
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        return new ArrayList<Board>();
+        Set<Board> result = new HashSet<Board>(4);
+        int[] blankCoordinates = coordinatesForBlank();
+        int i = blankCoordinates[0];
+        int j = blankCoordinates[1];
+
+        // top
+        if (withinBounds(i - 1, j)) {
+            result.add(new Board(swap(i, j, i - 1, j)));
+        }
+
+        // right
+        if (withinBounds(i, j + 1)) {
+            result.add(new Board(swap(i, j, i, j + 1)));
+        }
+
+        // bottom
+        if (withinBounds(i + 1, j)) {
+            result.add(new Board(swap(i, j, i + 1, j)));
+        }
+
+        // left
+        if (withinBounds(i, j - 1)) {
+            result.add(new Board(swap(i, j, i, j - 1)));
+        }
+
+        return result;
+    }
+
+    private int[][] swap(int i1, int j1, int i2, int j2) {
+        int[][] result = new int[n][n];
+
+        for (int i = 0; i < n; i++) {
+            System.arraycopy(blocks[i], 0, result[i], 0, n);
+        }
+
+        // swap
+        int tmp = result[i1][j1];
+        result[i1][j1] = result[i2][j2];
+        result[i2][j2] = tmp;
+
+        return result;
+    }
+
+    private int[] coordinatesForBlank() {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n;  j++) {
+                if (blocks[i][j] == 0) {
+                    return new int[] {i, j};
+                }
+            }
+        }
+        return new int[] {-1, -1};
+    }
+
+    private boolean withinBounds(int i, int j) {
+        return (i >= 0) && (i < n) && (j >= 0) && (j < n);
     }
 
     // string representation of this board (in the output format specified below)
@@ -149,9 +185,9 @@ public class Board {
             sb.append("\n");
         }
 
-        sb.append("hamming: " + hamming() + "\n");
-        sb.append("manhattan: " + manhattan() + "\n");
-        sb.append("goal?: " + isGoal() + "\n");
+//        sb.append("hamming: " + hamming() + "\n");
+//        sb.append("manhattan: " + manhattan() + "\n");
+//        sb.append("goal?: " + isGoal() + "\n");
 
         return sb.toString();
     }
@@ -163,14 +199,10 @@ public class Board {
         Board board = new Board(input);
         System.out.println(board);
 
-        Board identicalTwin = new Board(input);
-        System.out.println("Equals identicalTwin? " + board.equals(identicalTwin));
-
-        int[][] input2 = { {5, 1, 3}, {4, 0, 2}, {7, 6, 8} };
-        Board board2 = new Board(input2);
-        System.out.println("Equals board2? " + board.equals(board2));
-
-        System.out.println("\nTwin:\n" + board.twin());
+        System.out.println("\nNeighbors:\n");
+        for (Board b : board.neighbors()){
+            System.out.println("\n" + b);
+        }
     }
 
 }
