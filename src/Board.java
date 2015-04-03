@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,6 +10,9 @@ public class Board {
 
     private final int n;
     private final int[][] blocks;
+
+    // compare points by Manhattan priority
+    public final Comparator<Board> MANHATTAN_PRIORITY = new ByManhattanPriority();
 
     // construct a board from an N-by-N array of blocks
     // (where blocks[i][j] = block in row i, column j)
@@ -73,20 +77,7 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-
-        // check last block
-        if (blocks[n-1][n-1] != 0) {
-            return false;
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (!isInPlace(i,j)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return manhattan() == 0;
     }
 
     // a board that is obtained by exchanging two adjacent blocks in the same row
@@ -172,6 +163,23 @@ public class Board {
 
     private boolean withinBounds(int i, int j) {
         return (i >= 0) && (i < n) && (j >= 0) && (j < n);
+    }
+
+    private class ByManhattanPriority implements Comparator<Board> {
+
+        @Override
+        public int compare(Board b1, Board b2) {
+            int manhattan1 = b1.manhattan();
+            int manhattan2 = b2.manhattan();
+
+            if (manhattan1 > manhattan2) {
+                return 1;
+            } else if (manhattan1 < manhattan2) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 
     // string representation of this board (in the output format specified below)
