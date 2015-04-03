@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by bennett on 4/1/15.
@@ -17,6 +18,10 @@ public class Board {
 
         this.n = blocks.length;
         this.blocks = blocks;
+    }
+
+    public int[][] blocks() {
+        return blocks;
     }
 
     // board dimension N
@@ -88,9 +93,17 @@ public class Board {
         return this;
     }
 
-    // does this board equal y?
+    // does this board equal that?
+    @Override
     public boolean equals(Object y) {
-        return false;
+        if (this == y)
+            return true;
+        if (y == null)
+            return false;
+        if (!(y instanceof Board))
+            return false;
+        Board that = (Board) y;
+        return Arrays.deepEquals(this.blocks, that.blocks());
     }
 
     // all neighboring boards
@@ -122,6 +135,13 @@ public class Board {
         int[][] input = { {8, 1, 3}, {4, 0, 2}, {7, 6, 5} };
         Board board = new Board(input);
         System.out.println(board);
+
+        Board identicalTwin = new Board(input);
+        System.out.println("Equals identicalTwin? " + board.equals(identicalTwin));
+
+        int[][] input2 = { {5, 1, 3}, {4, 0, 2}, {7, 6, 8} };
+        Board board2 = new Board(input2);
+        System.out.println("Equals board2? " + board.equals(board2));
     }
 
 }
