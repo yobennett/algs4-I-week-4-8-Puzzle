@@ -9,19 +9,26 @@ public class Solver {
     private Board previous;
     private Board current;
     private static final int UNSOLVABLE = -1;
-    private int moves;
+    private int moves = 0;
     private List<Board> solution;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         if (initial == null)
             throw new NullPointerException();
-        this.moves = 0;
         this.current = initial;
         this.previous = null;
         this.solution = new ArrayList<Board>();
-        this.solution.add(initial);
-        solve(current, previous);
+        addMove(initial);
+
+        if (!current.isGoal()) {
+            solve(current, previous);
+        }
+    }
+
+    private void addMove(Board board) {
+        solution.add(board);
+        moves += 1;
     }
 
     private void solve(Board currentBoard, Board previousBoard) {
@@ -36,8 +43,7 @@ public class Solver {
         }
 
         Board min = pq.delMin();
-        solution.add(min);
-        moves += 1;
+        addMove(min);
 
         previous = current;
         current = min;
