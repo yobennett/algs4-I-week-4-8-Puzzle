@@ -106,6 +106,13 @@ public class Board {
         return Arrays.deepEquals(this.blocks, that.blocks());
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 17;
+        hash = 31*hash + blocks.hashCode();
+        return hash;
+    }
+
     // all neighboring boards
     public Iterable<Board> neighbors() {
         return new ArrayList<Board>();
