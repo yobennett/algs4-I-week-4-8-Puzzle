@@ -5,59 +5,76 @@ import java.util.Comparator;
  */
 public class Solver {
 
-    private SearchNode current;
     private static final int UNSOLVABLE = -1;
-    private int moves = 0;
+    private final Board initial;
     private Queue<Board> solution;
     private MinPQ<SearchNode> pq;
+    private int enqueues = 0;
+    private int dequeues = 0;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         if (initial == null)
             throw new NullPointerException();
+        this.initial = initial;
         this.pq = new MinPQ<SearchNode>(new ByManhattanPriority());
         this.solution = new Queue<Board>();
+        solve();
+    }
 
-        this.current = new SearchNode(initial, moves, null);
+    private void enqueueSearchNode(SearchNode node) {
+//        System.out.println("* ENQUEUE");
+        enqueues++;
+        pq.insert(node);
+    }
 
-        this.pq.insert(current);
-        System.out.println("* ENQUEUE");
-        this.solution.enqueue(initial);
+    private SearchNode dequeueMinSearchNode() {
+//        System.out.println("** DEQUEUE");
+        dequeues++;
+        return pq.delMin();
+    }
 
-        printState();
+    private void addSolutionStep(Board board) {
+        solution.enqueue(board);
+    }
 
-        if (!initial.isGoal())
-            solve(current);
+    private void solve() {
+        SearchNode node = new SearchNode(initial, 0, null);
+
+        enqueueSearchNode(node);
+
+        SearchNode min = dequeueMinSearchNode();
+        addSolutionStep(min.board());
+
+        if (!min.board().isGoal()) {
+            solve(min);
+        }
     }
 
     private void solve(SearchNode node) {
         Board board = node.board();
         Board prev = (node.previousNode() != null) ? node.previousNode().board() : null;
-        Iterable<Board> neighbors = board.neighbors();
 
         // add neighbors to priority queue
+        Iterable<Board> neighbors = board.neighbors();
         for (Board neighbor : neighbors) {
             if (!neighbor.equals(prev)) {
-                System.out.println("* ENQUEUE");
-                pq.insert(new SearchNode(neighbor, moves, node));
+                enqueueSearchNode(new SearchNode(neighbor, moves(), node));
             }
         }
 
-        moves += 1;
-        printState();
+//        printState();
 
-        System.out.println("** DEQUEUE");
-        SearchNode min = pq.delMin();
-        solution.enqueue(min.board());
+        SearchNode min = dequeueMinSearchNode();
+        addSolutionStep(min.board());
 
-        current = min;
-        if (!current.board().isGoal()) {
-            solve(current);
+        if (!min.board().isGoal()) {
+            solve(min);
         }
     }
 
     private void printState() {
-        StdOut.printf("Step %d:\n", moves);
+        StdOut.printf("Step %d:\n", moves());
         //System.out.printf("%-23s %s %f %n", "mean", "=", stats.mean());
     }
 
@@ -71,7 +88,7 @@ public class Solver {
         if (!isSolvable()) {
             return UNSOLVABLE;
         }
-        return solution.size();
+        return solution.size() - 1;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
@@ -153,6 +170,7 @@ public class Solver {
             StdOut.println("No solution possible");
         else {
             StdOut.println("Minimum number of moves = " + solver.moves());
+            StdOut.println("enqueues = " + solver.enqueues + ", dequeues = " + solver.dequeues);
             for (Board board : solver.solution())
                 StdOut.println(board);
         }
