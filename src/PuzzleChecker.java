@@ -32,6 +32,8 @@ public class PuzzleChecker {
         // for each command-line argument
         for (String filename : args) {
 
+            System.out.println("\nFilename: " + filename);
+
             // read in the board specified in the filename
             In in = new In(filename);
             int N = in.readInt();

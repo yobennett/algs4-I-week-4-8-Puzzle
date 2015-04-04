@@ -11,9 +11,6 @@ public class Board {
     private final int n;
     private final int[][] blocks;
 
-    // compare points by Manhattan priority
-    public final Comparator<Board> MANHATTAN_PRIORITY = new ByManhattanPriority();
-
     // construct a board from an N-by-N array of blocks
     // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
@@ -163,23 +160,6 @@ public class Board {
 
     private boolean withinBounds(int i, int j) {
         return (i >= 0) && (i < n) && (j >= 0) && (j < n);
-    }
-
-    private class ByManhattanPriority implements Comparator<Board> {
-
-        @Override
-        public int compare(Board b1, Board b2) {
-            int manhattan1 = b1.manhattan();
-            int manhattan2 = b2.manhattan();
-
-            if (manhattan1 > manhattan2) {
-                return 1;
-            } else if (manhattan1 < manhattan2) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
     }
 
     // string representation of this board (in the output format specified below)

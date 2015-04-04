@@ -1,55 +1,64 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Comparator;
 
 /**
  * Created by bennett on 4/2/15.
  */
 public class Solver {
 
-    private Board previous;
-    private Board current;
+    private SearchNode current;
     private static final int UNSOLVABLE = -1;
     private int moves = 0;
-    private List<Board> solution;
+    private Queue<Board> solution;
+    private MinPQ<SearchNode> pq;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         if (initial == null)
             throw new NullPointerException();
-        this.current = initial;
-        this.previous = null;
-        this.solution = new ArrayList<Board>();
-        addMove(initial);
+        this.pq = new MinPQ<SearchNode>(new ByManhattanPriority());
+        this.solution = new Queue<Board>();
 
-        if (!current.isGoal()) {
-            solve(current, previous);
-        }
+        this.current = new SearchNode(initial, moves, null);
+
+        this.pq.insert(current);
+        System.out.println("* ENQUEUE");
+        this.solution.enqueue(initial);
+
+        printState();
+
+        if (!initial.isGoal())
+            solve(current);
     }
 
-    private void addMove(Board board) {
-        solution.add(board);
-        moves += 1;
-    }
+    private void solve(SearchNode node) {
+        Board board = node.board();
+        Board prev = (node.previousNode() != null) ? node.previousNode().board() : null;
+        Iterable<Board> neighbors = board.neighbors();
 
-    private void solve(Board currentBoard, Board previousBoard) {
-        MinPQ<Board> pq = new MinPQ<Board>(currentBoard.MANHATTAN_PRIORITY);
-        Iterable<Board> neighbors = currentBoard.neighbors();
-
-        // add neighbors to MinPQ, sort by Manhattan priority
+        // add neighbors to priority queue
         for (Board neighbor : neighbors) {
-            if (!neighbor.equals(previousBoard)) {
-                pq.insert(neighbor);
+            if (!neighbor.equals(prev)) {
+                System.out.println("* ENQUEUE");
+                pq.insert(new SearchNode(neighbor, moves, node));
             }
         }
 
-        Board min = pq.delMin();
-        addMove(min);
+        moves += 1;
+        printState();
 
-        previous = current;
+        System.out.println("** DEQUEUE");
+        SearchNode min = pq.delMin();
+        solution.enqueue(min.board());
+
         current = min;
-        if (!current.isGoal()) {
-            solve(current, previous);
+        if (!current.board().isGoal()) {
+            solve(current);
         }
+    }
+
+    private void printState() {
+        StdOut.printf("Step %d:\n", moves);
+        //System.out.printf("%-23s %s %f %n", "mean", "=", stats.mean());
     }
 
     // is the initial board solvable?
@@ -62,12 +71,66 @@ public class Solver {
         if (!isSolvable()) {
             return UNSOLVABLE;
         }
-        return moves;
+        return solution.size();
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
         return solution;
+    }
+
+    private class SearchNode {
+
+        private final Board board;
+        private final int previousMoves;
+        private final int manhattan;
+        private final SearchNode previousNode;
+        private final int priority;
+
+        SearchNode(Board board, int previousMoves, SearchNode previousNode) {
+            this.board = board;
+            this.previousMoves = previousMoves;
+            this.manhattan = board.manhattan();
+            this.previousNode = previousNode;
+            this.priority = manhattan + previousMoves;
+        }
+
+        public Board board() {
+            return board;
+        }
+
+        public int priority() {
+            return priority;
+        }
+
+        public SearchNode previousNode() {
+            return previousNode;
+        }
+
+        @Override
+        public String toString() {
+            String result = "priority = " + priority;
+            result += "\nmoves = " + previousMoves;
+            result += "\nmanhattan = " + manhattan;
+            result += "\n" + board.toString();
+            return result;
+        }
+
+    }
+
+    private class ByManhattanPriority implements Comparator<SearchNode> {
+        @Override
+        public int compare(SearchNode node1, SearchNode node2) {
+            int priority1 = node1.priority();
+            int priority2 = node2.priority();
+            if (priority1 > priority2) {
+                return 1;
+            } else if (priority1 < priority2) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 
     // solve a slider puzzle (given below)
