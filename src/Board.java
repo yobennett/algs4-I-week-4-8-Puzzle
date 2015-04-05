@@ -7,6 +7,7 @@ public class Board {
 
     private final int n;
     private final int[][] blocks;
+    private Board twin;
 
     // construct a board from an N-by-N array of blocks
     // (where blocks[i][j] = block in row i, column j)
@@ -17,9 +18,9 @@ public class Board {
 
         this.n = input.length;
         this.blocks = new int[n][n];
-        for (int i = 0; i < n; i++) {
-            System.arraycopy(input[i], 0, this.blocks[i], 0, n);
-        }
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                this.blocks[i][j] = input[i][j];
     }
 
     // board dimension N
@@ -80,9 +81,18 @@ public class Board {
 
     // a board that is obtained by exchanging two adjacent blocks in the same row
     public Board twin() {
+        if (twin == null) {
+            twin = newTwin();
+        }
+        return twin;
+    }
+
+    private Board newTwin() {
         int[][] twinBlocks = new int[n][n];
         for (int i = 0; i < n; i++) {
-            System.arraycopy(blocks, 0, twinBlocks, 0, n);
+            for (int j = 0; j < n; j++) {
+                twinBlocks[i][j] = blocks[i][j];
+            }
         }
         for (int i = 0; i < 2; i++) {
             if (twinBlocks[i][0] != 0 && twinBlocks[i][1] != 0) {
