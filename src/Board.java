@@ -67,7 +67,6 @@ public class Board {
         int value = blocks[i][j];
         int goalRow = (int) Math.floor((value - 1) / n);
         int goalCol = (value - 1) % n;
-//        System.out.println("value="+value+" "+i+"-"+j+", goal "+goalRow+"-"+goalCol+", manhattan="+result);
         return Math.abs(goalRow - i) + Math.abs(goalCol - j);
     }
 
