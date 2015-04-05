@@ -1,6 +1,4 @@
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by bennett on 4/1/15.
@@ -98,29 +96,29 @@ public class Board {
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        Set<Board> result = new HashSet<Board>(4);
+        Stack<Board> result = new Stack<Board>();
         int[] blankCoordinates = coordinatesForBlank();
         int i = blankCoordinates[0];
         int j = blankCoordinates[1];
 
         // top
         if (withinBounds(i - 1, j)) {
-            result.add(new Board(swap(i, j, i - 1, j)));
+            result.push(new Board(swap(i, j, i - 1, j)));
         }
 
         // right
         if (withinBounds(i, j + 1)) {
-            result.add(new Board(swap(i, j, i, j + 1)));
+            result.push(new Board(swap(i, j, i, j + 1)));
         }
 
         // bottom
         if (withinBounds(i + 1, j)) {
-            result.add(new Board(swap(i, j, i + 1, j)));
+            result.push(new Board(swap(i, j, i + 1, j)));
         }
 
         // left
         if (withinBounds(i, j - 1)) {
-            result.add(new Board(swap(i, j, i, j - 1)));
+            result.push(new Board(swap(i, j, i, j - 1)));
         }
 
         return result;
