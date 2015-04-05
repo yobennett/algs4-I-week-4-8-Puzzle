@@ -1,5 +1,4 @@
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,17 +12,13 @@ public class Board {
 
     // construct a board from an N-by-N array of blocks
     // (where blocks[i][j] = block in row i, column j)
-    public Board(int[][] blocks) {
-        if (blocks == null) {
+    public Board(int[][] input) {
+        if (input == null) {
             throw new NullPointerException();
         }
 
-        this.n = blocks.length;
-        this.blocks = blocks;
-    }
-
-    public int[][] blocks() {
-        return blocks;
+        this.n = input.length;
+        this.blocks = Arrays.copyOf(input, n);
     }
 
     // board dimension N
@@ -36,7 +31,7 @@ public class Board {
         int result = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (!isBlank(i,j) && !isInPlace(i,j)) {
+                if (!isBlank(i, j)) {
                     result += 1;
                 }
             }
@@ -48,28 +43,34 @@ public class Board {
         return blocks[i][j] == 0;
     }
 
-    private boolean isInPlace(int i, int j) {
-        return blocks[i][j] == (i*n) + j + 1;
-    }
-
     // sum of Manhattan distances between blocks and goal
     public int manhattan() {
         int result = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (!isBlank(i,j) && !isInPlace(i,j)) {
-                    result += distanceFromPlace(i,j);
+                if (!isBlank(i, j)) {
+                    result += distanceFromPlace(i, j);
                 }
             }
         }
         return result;
     }
 
+//    0-0 1
+//    0-1 2
+//    0-2 3
+//    1-0 4
+//    1-1 5
+//    1-2 6
+//    2-0 7
+//    2-1 8
+//    2-2 0
     private int distanceFromPlace(int i, int j) {
         int value = blocks[i][j];
-        int targetRow = value / (n+1);
-        int targetColumn = (value-1) % n;
-        return Math.abs(targetRow - i) + Math.abs(targetColumn - j);
+        int goalRow = (int) Math.floor((value - 1) / n);
+        int goalCol = (value - 1) % n;
+//        System.out.println("value="+value+" "+i+"-"+j+", goal "+goalRow+"-"+goalCol+", manhattan="+result);
+        return Math.abs(goalRow - i) + Math.abs(goalCol - j);
     }
 
     // is this board the goal board?
@@ -92,14 +93,7 @@ public class Board {
         if (!(y instanceof Board))
             return false;
         Board that = (Board) y;
-        return Arrays.deepEquals(this.blocks, that.blocks());
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 17;
-        hash = 31*hash + Arrays.hashCode(blocks);
-        return hash;
+        return Arrays.deepEquals(this.blocks, that.blocks);
     }
 
     // all neighboring boards
@@ -172,25 +166,38 @@ public class Board {
             }
             sb.append("\n");
         }
-
-//        sb.append("hamming: " + hamming() + "\n");
-//        sb.append("manhattan: " + manhattan() + "\n");
-//        sb.append("goal?: " + isGoal() + "\n");
-
+//        sb.append("\nmanhattan=" + manhattan() + "\n");
         return sb.toString();
     }
 
     public static void main(String[] args) {
-        System.out.println("Starting....");
 
-        int[][] input = { {8, 1, 3}, {4, 0, 2}, {7, 6, 5} };
+        int[][] input0 = { {1, 2, 3}, {4, 5, 6}, {7, 8, 0} };
+        Board board0 = new Board(input0);
+        System.out.println(board0);
+
+
+//        1  2  3
+//        0  7  6
+//        5  4  8
+        int[][] input = { {1, 2, 3}, {0, 7, 6}, {5, 4, 8} };
         Board board = new Board(input);
         System.out.println(board);
 
-        System.out.println("\nNeighbors:\n");
-        for (Board b : board.neighbors()){
-            System.out.println("\n" + b);
-        }
+//        5  1  8
+//        2  7  3
+//        4  0  6
+        int[][] input17 = { {5, 1, 8}, {2, 7, 3}, {4, 0, 6} };
+        Board board17 = new Board(input17);
+        System.out.println(board17);
+
+//        5  8  7
+//        1  4  6
+//        3  0  2
+        int[][] input27 = { {5, 8, 7}, {1, 4, 6}, {3, 0, 2} };
+        Board board27 = new Board(input27);
+        System.out.println(board27);
+
     }
 
 }

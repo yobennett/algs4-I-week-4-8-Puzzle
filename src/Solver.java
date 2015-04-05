@@ -25,18 +25,25 @@ public class Solver {
             SearchNode node = dequeueMinSearchNode();
 
             if (node.previousNode != null)
-                assert node.priority() >= node.previousNode.priority() : "Priority of dequeued node is decreasing.\ncurrent:\n" + node + "\nprev:\n" + node.previousNode;
+                assert node.priority() >= node.previousNode.priority()
+                    : "Decreasing priority .\n"
+                      + "curr:\n" + node
+                      + "\nprev:\n" + node.previousNode;
 
             if (node.board.isGoal()) {
                 solvable = true;
                 finalNode = node;
             } else {
                 for (Board neighbor : node.board.neighbors()) {
+                    SearchNode neighborNode = new SearchNode(
+                        neighbor,
+                        node.moves + 1,
+                        node);
                     if (node.previousNode != null) {
                         if (!neighbor.equals(node.previousNode.board))
-                            enqueueSearchNode(new SearchNode(neighbor, node.moves + 1, node));
+                            enqueueSearchNode(neighborNode);
                     } else {
-                        enqueueSearchNode(new SearchNode(neighbor, node.moves + 1, node));
+                        enqueueSearchNode(neighborNode);
                     }
                 }
             }
