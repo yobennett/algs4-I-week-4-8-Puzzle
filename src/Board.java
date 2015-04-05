@@ -31,9 +31,11 @@ public class Board {
     // number of blocks out of place
     public int hamming() {
         int result = 0;
+        int value;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (!isBlank(i, j)) {
+                value = blocks[i][j];
+                if (!isBlank(i, j) && (i != goalRow(value) || j != goalCol(value))) {
                     result += 1;
                 }
             }
@@ -58,20 +60,17 @@ public class Board {
         return result;
     }
 
-//    0-0 1
-//    0-1 2
-//    0-2 3
-//    1-0 4
-//    1-1 5
-//    1-2 6
-//    2-0 7
-//    2-1 8
-//    2-2 0
     private int distanceFromPlace(int i, int j) {
         int value = blocks[i][j];
-        int goalRow = (int) Math.floor((value - 1) / n);
-        int goalCol = (value - 1) % n;
-        return Math.abs(goalRow - i) + Math.abs(goalCol - j);
+        return Math.abs(goalRow(value) - i) + Math.abs(goalCol(value) - j);
+    }
+
+    private int goalRow(int value) {
+        return (int) Math.floor((value - 1) / n);
+    }
+
+    private int goalCol(int value) {
+        return (value - 1) % n;
     }
 
     // is this board the goal board?
@@ -189,6 +188,7 @@ public class Board {
             sb.append("\n");
         }
 //        sb.append("\nmanhattan=" + manhattan() + "\n");
+        sb.append("\nhamming=" + hamming() + "\n");
         return sb.toString();
     }
 
