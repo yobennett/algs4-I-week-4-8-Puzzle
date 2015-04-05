@@ -6,12 +6,7 @@ import java.util.Comparator;
 public class Solver {
 
     private static final int UNSOLVABLE = -1;
-    private final Board initial;
-    private Queue<Board> solution;
     private MinPQ<SearchNode> minPQ;
-    private int moves = 0;
-    private int enqueues = 0;
-    private int dequeues = 0;
     private boolean solvable = false;
     private SearchNode finalNode;
 
@@ -19,9 +14,7 @@ public class Solver {
     public Solver(Board initial) {
         if (initial == null)
             throw new NullPointerException();
-        this.initial = initial;
         this.minPQ = new MinPQ<SearchNode>(new ByManhattanPriority());
-        this.solution = new Queue<Board>();
 
         enqueueSearchNode(new SearchNode(initial, 0, null));
         solve();
@@ -30,6 +23,10 @@ public class Solver {
     private void solve() {
         while (!isSolvable()) {
             SearchNode node = dequeueMinSearchNode();
+
+            if (node.previousNode != null)
+                assert node.priority() >= node.previousNode.priority() : "Priority of dequeued node is decreasing.\ncurrent:\n" + node + "\nprev:\n" + node.previousNode;
+
             if (node.board.isGoal()) {
                 solvable = true;
                 finalNode = node;
@@ -43,25 +40,16 @@ public class Solver {
                     }
                 }
             }
-
         }
     }
 
 
     private void enqueueSearchNode(SearchNode node) {
-//        System.out.println("* ENQUEUE");
-        enqueues++;
         minPQ.insert(node);
     }
 
     private SearchNode dequeueMinSearchNode() {
-//        System.out.println("** DEQUEUE");
-        dequeues++;
         return minPQ.delMin();
-    }
-
-    private void printState() {
-        StdOut.printf("Step %d:\n", moves());
     }
 
     // is the initial board solvable?
@@ -88,7 +76,6 @@ public class Solver {
                 result.push(node.board);
                 node = node.previousNode;
             }
-            moves = result.size();
             return result;
         }
     }
@@ -130,7 +117,6 @@ public class Solver {
             String result = "priority = " + priority();
             result += "\nmoves = " + moves;
             result += "\nmanhattan = " + manhattan;
-            result += "\nhamming = " + hamming;
             result += "\n" + board.toString();
             return result;
         }
@@ -140,7 +126,13 @@ public class Solver {
     private class ByManhattanPriority implements Comparator<SearchNode> {
         @Override
         public int compare(SearchNode node1, SearchNode node2) {
-            return node1.priority() - node2.priority();
+            if (node1.priority() > node2.priority()) {
+                return 1;
+            } else if (node1.priority() < node2.priority()) {
+                return -1;
+            } else {
+                return node1.manhattan - node2.manhattan;
+            }
         }
     }
 
@@ -164,7 +156,6 @@ public class Solver {
             StdOut.println("No solution possible");
         else {
             StdOut.println("Minimum number of moves = " + solver.moves());
-//            StdOut.println("enqueues = " + solver.enqueues + ", dequeues = " + solver.dequeues);
             for (Board board : solver.solution())
                 StdOut.println(board);
         }

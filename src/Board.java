@@ -74,7 +74,7 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-        return (blocks[n-1][n-1] == 0) && (manhattan() == 0);
+        return manhattan() == 0;
     }
 
     // a board that is obtained by exchanging two adjacent blocks in the same row
