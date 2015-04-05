@@ -16,7 +16,10 @@ public class Board {
         }
 
         this.n = input.length;
-        this.blocks = Arrays.copyOf(input, n);
+        this.blocks = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            System.arraycopy(input[i], 0, this.blocks[i], 0, n);
+        }
     }
 
     // board dimension N
@@ -77,7 +80,19 @@ public class Board {
 
     // a board that is obtained by exchanging two adjacent blocks in the same row
     public Board twin() {
-        return new Board(swap(0, 0, 0, 1));
+        int[][] twinBlocks = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            System.arraycopy(blocks, 0, twinBlocks, 0, n);
+        }
+        for (int i = 0; i < 2; i++) {
+            if (twinBlocks[i][0] != 0 && twinBlocks[i][1] != 0) {
+                int tmp = twinBlocks[i][0];
+                twinBlocks[i][0] = twinBlocks[i][1];
+                twinBlocks[i][1] = tmp;
+                break;
+            }
+        }
+        return new Board(twinBlocks);
     }
 
     // does this board equal that?
